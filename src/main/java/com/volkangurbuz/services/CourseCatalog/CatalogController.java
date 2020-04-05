@@ -2,6 +2,7 @@ package com.volkangurbuz.services.CourseCatalog;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.volkangurbuz.services.CourseCatalog.Model.Course;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,7 +17,10 @@ public class CatalogController {
     @Autowired
     private EurekaClient client;
 
+
+    //when connection is down fallbackmethod runs
     @RequestMapping("/")
+    @HystrixCommand(fallbackMethod = "displayDefaultHome")
     public String getCatalogHome() {
         String courseAppMesage = "";
         //String courseAppURL = "http://localhost:8080/";
@@ -26,6 +30,10 @@ public class CatalogController {
         courseAppMesage = restTemplate.getForObject(courseAppURL,String.class);
 
         return("Welcome to FutureX Course Catalog "+courseAppMesage);
+    }
+
+    public String displayDefaultHome(){
+        return "please try again later, the service is not working.";
     }
 
     @RequestMapping("/catalog")
